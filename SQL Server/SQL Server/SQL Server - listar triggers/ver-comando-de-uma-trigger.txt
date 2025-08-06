@@ -1,0 +1,6 @@
+SELECT so.name, text
+FROM sysobjects so,
+     syscomments sc
+WHERE type = 'TR'
+  AND so.id = sc.id
+  AND so.name = 'tupdregistroeixo'

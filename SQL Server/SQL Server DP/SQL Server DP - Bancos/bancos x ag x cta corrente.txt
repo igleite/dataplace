@@ -1,0 +1,23 @@
+SELECT numBanco          = Banco.numbanco
+     , numAgencia        = BancoAgencia.NumAgencia
+     , CdConta           = BcoCtaCorrente.CdConta
+     , cdCarteira        = BcoCtaCorrCarteira.cdcarteira
+     , quemImprimeBoleto = BcoCtaCorrCarteira.quemimprimepapel
+FROM Banco
+         INNER JOIN BancoAgencia
+                    ON Banco.cdempresa = BancoAgencia.CdEmpresa
+                        AND Banco.cdfilial = BancoAgencia.CdFilial
+                        AND Banco.numbanco = BancoAgencia.NumBanco
+         INNER JOIN BcoCtaCorrente
+                    ON BancoAgencia.cdempresa = BcoCtaCorrente.CdEmpresa
+                        AND BancoAgencia.cdfilial = BcoCtaCorrente.CdFilial
+                        AND BancoAgencia.numbanco = BcoCtaCorrente.NumBanco
+                        AND BancoAgencia.NumAgencia = BcoCtaCorrente.NumAgencia
+         INNER JOIN BcoCtaCorrCarteira
+                    ON BcoCtaCorrente.cdempresa = BcoCtaCorrCarteira.cdempresa
+                        AND BcoCtaCorrente.cdfilial = BcoCtaCorrCarteira.cdfilial
+                        AND BcoCtaCorrente.CdConta = BcoCtaCorrCarteira.CdConta
+WHERE Banco.numbanco = ''
+  AND BancoAgencia.NumAgencia = ''
+  AND BcoCtaCorrente.CdConta = ''
+  AND BcoCtaCorrCarteira.cdcarteira = ''

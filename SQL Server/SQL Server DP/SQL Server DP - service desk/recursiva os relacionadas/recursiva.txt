@@ -1,0 +1,23 @@
+;WITH arvore_os (numosorigem, numosdestino, nivel) AS (
+
+    SELECT numosorigem  = numosorigem
+         , numosdestino = numosdestino
+         , nivel        = 1
+    FROM dposrelacionada
+    WHERE numosorigem = '243704'
+    
+    UNION ALL
+    
+    SELECT numosorigem1  = dposrelacionada.numosorigem
+         , numosdestino2 = dposrelacionada.numosdestino
+         , nivel         = ao.nivel + 1
+    FROM dposrelacionada
+             INNER JOIN arvore_os ao ON dposrelacionada.numosorigem = ao.numosdestino
+
+
+)
+
+SELECT TOP 10 pai   = numosorigem
+            , filha = numosdestino
+            , nivel
+FROM arvore_os

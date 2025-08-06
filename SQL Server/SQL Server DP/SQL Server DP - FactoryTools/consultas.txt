@@ -1,0 +1,84 @@
+-- Dicionário de dados - tabelas
+SELECT Object.ObjectID,
+       Object.Name,
+       CONVERT(nvarchar(max), Object.Description) AS Description,
+       CASE Object.Type
+           WHEN '10' THEN 'Table'
+           WHEN '20' THEN 'Form'
+           WHEN '30' THEN 'Report'
+           WHEN '40' THEN 'Engine Code/Dataport'
+           WHEN '50' THEN 'Command'
+           WHEN '60' THEN 'Stored procedure'
+           WHEN '70' THEN 'Functions'
+           WHEN '80' THEN 'Menu builder'
+           WHEN '90' THEN 'Relation' END          AS Tipo,
+       release,
+       parameters
+FROM Object
+WHERE objectid = '1007050'
+
+-- Dicionário de dados - colunas da tabela
+SELECT *
+     , CASE [ObjectField].[Type]
+           WHEN 34 THEN 'Image'
+           WHEN 35 THEN 'Text'
+           WHEN 36 THEN 'UniqueIdentifier'
+           WHEN 48 THEN 'TinyINT'
+           WHEN 52 THEN 'SmallINT'
+           WHEN 56 THEN 'INT'
+           WHEN 58 THEN 'SmallDatetime'
+           WHEN 59 THEN 'Real'
+           WHEN 60 THEN 'Money'
+           WHEN 61 THEN 'Datetime'
+           WHEN 62 THEN 'Float'
+           WHEN 99 THEN 'NText'
+           WHEN 104 THEN 'Bit'
+           WHEN 106 THEN 'Decimal'
+           WHEN 108 THEN 'Numeric'
+           WHEN 122 THEN 'SmallMoney'
+           WHEN 127 THEN 'BigINT'
+           WHEN 165 THEN 'VarBinary'
+           WHEN 167 THEN 'VarChar'
+           WHEN 173 THEN 'Binary'
+           WHEN 175 THEN 'Char'
+           WHEN 189 THEN 'Timestamp'
+           WHEN 231 THEN 'NVarChar'
+           WHEN 239 THEN 'NChar'
+           WHEN 241 THEN 'Xml'
+    END
+FROM ObjectField
+WHERE 1 = 1
+  AND objectid = '1007050'
+
+-- Dicionário de dados - indices de uma tabela
+SELECT objectindex.objectid,
+       objectindex.indexid,
+       objectindex.name AS name1,
+       objectindex.type,
+       objectindex.source,
+       objectindex.fieldnumber01,
+       objectindex.fieldnumber02,
+       objectindex.fieldnumber03,
+       objectindex.fieldnumber04,
+       objectindex.fieldnumber05,
+       objectindex.fieldnumber06,
+       objectindex.fieldnumber07,
+       objectindex.fieldnumber08,
+       objectindex.fieldnumber09,
+       objectindex.fieldnumber10,
+       objectindex.fieldnumber11,
+       objectindex.fieldnumber12,
+       objectindex.fieldnumber13,
+       objectindex.fieldnumber14,
+       objectindex.fieldnumber15,
+       objectindex.command,
+       objectindex.fill_factor,
+       objectindex.release
+FROM objectindex
+WHERE objectid = '1007050'
+  AND source = 0
+
+-- Dicionário de dados - triggers de uma tabela
+SELECT objectid, name, command, release
+FROM ObjectTrigger
+WHERE objectid = '1007050'

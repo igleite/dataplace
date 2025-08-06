@@ -1,0 +1,51 @@
+SELECT T.TicketNumber
+     , DI.numero
+
+     , T.SystemUserEmail
+     , DI.solicitanteemail
+FROM dpWeb_adm..Tickets T
+         INNER JOIN dpRDS..DpIncidente DI
+                    ON T.TicketNumber = DI.numero
+
+WHERE T.TicketNumber = '22248005';
+
+
+
+SELECT TicketNumber = T.TicketNumber
+	 , DI.Numero
+     , Description  = T.Description
+     , Status       = CASE T.Status
+                          WHEN '0' THEN 'Rascunho'
+                          WHEN '4' THEN 'Enviando...'
+                          WHEN '1' THEN 'Enviado'
+                          WHEN '2' THEN 'Em execução'
+                          WHEN '5' THEN 'Pendente aguardando a minha aprovação'
+                          WHEN '3' THEN 'Finalizado'
+    END
+     , DateCreated  = CONVERT(VARCHAR(10), T.DateCreated, 103)
+     , Categoria    = TC.Name
+     , Versao       = T.SystemVersion
+     , Solicitante  = C.Name
+     , Email        = C.Email
+
+     , T.Id
+     , TF.Id
+FROM Tickets T
+         INNER JOIN CustomerUsers C
+                    ON C.id = T.CustomerUserId
+         LEFT JOIN TicketCategories TC
+                   ON TC.id = T.TicketCategoryId
+
+         LEFT JOIN TicketFollowers TF
+                   ON T.Id = TF.TicketId
+                       AND C.Id = TF.CustomerUserId
+                       AND C.UserId = TF.UserId
+
+         LEFT JOIN [STRAUSS\MSSQLPD].dpRDS.dbo.DpIncidente DI
+                   ON T.TicketNumber = DI.numero 
+
+WHERE T.active = 1
+  --AND C.Email = 'igor.leite@dataplace.com.br';
+  AND T.Status IN (0 , 4)
+  AND T.DateCreated >= '2024-02-01'
+

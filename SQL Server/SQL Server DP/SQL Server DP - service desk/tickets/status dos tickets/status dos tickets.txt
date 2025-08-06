@@ -1,0 +1,12 @@
+SELECT TicketNumber
+     , Status = CASE Status
+                    WHEN '0' THEN 'Rascunho'
+                    WHEN '4' THEN 'Enviando...'
+                    WHEN '1' THEN 'Enviado'
+                    WHEN '2' THEN 'Em execução'
+                    WHEN '5' THEN 'Pendente aguardando a minha aprovação'
+                    WHEN '3' THEN 'Finalizado'
+    END
+     , Id
+FROM Tickets
+WHERE TicketNumber = '22243001'

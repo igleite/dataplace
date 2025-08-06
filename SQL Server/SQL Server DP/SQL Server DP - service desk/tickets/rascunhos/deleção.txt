@@ -1,0 +1,13 @@
+BEGIN TRAN
+
+DELETE Tickets
+OUTPUT deleted.Id
+WHERE Id = ''
+
+DELETE TicketFollowers
+OUTPUT deleted.Id
+WHERE Id = ''
+
+
+ROLLBACK TRAN
+-- COMMIT TRAN

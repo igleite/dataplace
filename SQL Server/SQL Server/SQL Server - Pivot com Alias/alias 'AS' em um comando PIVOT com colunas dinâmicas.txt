@@ -1,0 +1,70 @@
+DROP TABLE IF EXISTS #Sales
+GO
+
+CREATE TABLE #Sales
+(
+    [Product] VARCHAR(50),
+    [Month]   INT,
+    [Revenue] MONEY
+)
+GO
+
+INSERT INTO #Sales
+VALUES ('Product A', 1, 1000),
+       ('Product A', 2, 1500),
+       ('Product B', 1, 2000),
+       ('Product B', 3, 2500),
+       ('Product C', 2, 3000),
+       ('Product C', 3, 3500),
+       ('Product D', 4, 999)
+GO
+
+DROP TABLE IF EXISTS #MonthNames
+CREATE TABLE #MonthNames
+(
+    [Month] INT,
+    [MonthName] VARCHAR(50)
+)
+
+INSERT INTO #MonthNames
+VALUES (1, 'Jan'),
+       (2, 'Fev'),
+       (3, 'Mar'),
+       (4, 'Abr'),
+       (5, 'Mai'),
+       (6, 'Jun'),
+       (7, 'Jul'),
+       (8, 'Ago'),
+       (9, 'Set'),
+       (10, 'Out'),
+       (11, 'Nov'),
+       (12, 'Dez')
+
+DECLARE @cols AS NVARCHAR(MAX), @cols_with_alias AS NVARCHAR(MAX), @query AS NVARCHAR(MAX)
+SELECT @cols = STUFF((SELECT distinct ',' + QUOTENAME([Month])
+                      FROM #Sales
+                      FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
+
+-- Criando a nova variável com os aliases personalizados
+SELECT @cols_with_alias = STUFF((SELECT distinct ', ' + QUOTENAME(m.[Month]) + ' AS ' + QUOTENAME(m.[MonthName])
+                      FROM #Sales s
+                      JOIN #MonthNames m ON s.[Month] = m.[Month]
+                      FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '')
+
+SET @query = '
+
+SELECT [Product]
+     , ' + @cols_with_alias + '
+FROM (SELECT [Product]
+           , [Month]
+           , [Revenue]
+      FROM #Sales) x
+         PIVOT
+         (
+         SUM([Revenue])
+         FOR [Month] IN (' + @cols + ')
+         ) p
+
+'
+
+EXECUTE (@query)

@@ -1,0 +1,4 @@
+SELECT ANUC.*
+FROM AspNetUsers ANU
+         INNER JOIN AspNetUserClaims ANUC on ANU.Id = ANUC.UserId
+WHERE ANU.Email = 'igor.leite@dataplace.com.br'

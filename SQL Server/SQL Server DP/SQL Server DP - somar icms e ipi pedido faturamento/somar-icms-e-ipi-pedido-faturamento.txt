@@ -1,0 +1,10 @@
+SELECT icms  = FORMAT(SUM(PI.vlicms), 'C', 'PT-BR')
+     , ipi   = FORMAT(SUM(PI.vlipi), 'C', 'PT-BR')
+     , total = FORMAT(SUM(PI.vlicms) + SUM(PI.vlipi), 'C', 'PT-BR')
+FROM Pedido P WITH (NOLOCK)
+         INNER JOIN PedidoItem PI WITH (NOLOCK)
+                    ON P.CdEmpresa = PI.cdempresa
+                        AND P.CdFilial = PI.cdfilial
+                        AND P.NumPedido = PI.numpedido
+
+WHERE P.NumPedido = '2833'

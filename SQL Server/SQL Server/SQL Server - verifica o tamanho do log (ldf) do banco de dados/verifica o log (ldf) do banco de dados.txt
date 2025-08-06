@@ -1,0 +1,14 @@
+SELECT [name]                    = db.[name]
+     , [recovery_model_desc]     = db.[recovery_model_desc]
+     , [log_reuse_wait_desc]     = db.[log_reuse_wait_desc]
+     , [LogSize_KB]              = ls.[cntr_value]
+     , [LogUsed_KB]              = lu.[cntr_value]
+     , [compatibility_level]     = db.[compatibility_level]
+     , [page_verify_option_desc] = db.[page_verify_option_desc]
+     , [Percente_Log_Used]       = CAST(CAST(lu.[cntr_value] AS FLOAT) / CASE WHEN CAST(ls.[cntr_value] AS FLOAT) = 0 THEN 1 ELSE CAST(ls.[cntr_value] AS FLOAT) END AS DECIMAL(18, 2)) * 100
+FROM [sys].[databases] AS db
+         JOIN [sys].[dm_os_performance_counters] AS lu ON db.[name] = lu.[instance_name]
+         JOIN [sys].[dm_os_performance_counters] AS ls ON db.[name] = ls.[instance_name]
+WHERE lu.[counter_name] LIKE 'Log File(s) Used Size (KB)%'
+  AND ls.[counter_name] LIKE 'Log File(s) Size (KB)%'
+  AND name = (SELECT DB_NAME())

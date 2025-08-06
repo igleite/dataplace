@@ -1,0 +1,18 @@
+UPDATE ANUC
+SET ANUC.ClaimValue = 'Maria Eduarda dos Santos'
+FROM AspNetUsers ANU
+         INNER JOIN AspNetUserClaims ANUC ON ANU.Id = ANUC.UserId
+WHERE ANU.Email = 'helpdesk05@dataplace.com.br'
+  AND ANUC.ClaimType = 'Name'
+
+
+
+/*
+declare @emailAtual VARCHAR(MAX) = 'helpdesk02@dataplace.com.br';
+declare @novoNome VARCHAR(MAX) = 'Denise Leite dos Santos';
+UPDATE AspNetUserClaims SET ClaimValue = @novoNome WHERE Id = (SELECT
+    Id
+FROM AspNetUserClaims 
+WHERE UserId = (SELECT id FROM AspNetUsers WHERE Email = @emailAtual)
+    AND ClaimType = 'Name');
+*/

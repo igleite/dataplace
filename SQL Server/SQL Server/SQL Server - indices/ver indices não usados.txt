@@ -1,0 +1,23 @@
+SELECT Banco             = DB_NAME(database_id)
+     , Tabela            = OBJECT_NAME(I.object_id)
+     , Indice            = I.Name
+     , Pesquisas         = U.User_Seeks
+     , Varreduras        = U.User_Scans
+     , LookUps           = U.User_Lookups
+     , UltimaPesquisa    = U.Last_User_Seek
+     , UltimaVarredura   = U.Last_User_Scan
+     , UltimoLookUp      = U.Last_User_LookUp
+     , UltimaAtualizacao = U.Last_User_Update
+     , Colunas_Indice    = (SELECT STRING_AGG(COL_NAME(IC.object_id, IC.column_id), ', ')
+                            FROM sys.index_columns AS IC
+                            WHERE 1 = 1
+                              AND IC.object_id = I.object_id
+                              AND IC.index_id = I.index_id)
+
+     , script            = 'DROP INDEX ' + OBJECT_NAME(I.object_id) + '.' + I.Name
+
+FROM sys.indexes As I
+         LEFT OUTER JOIN sys.dm_db_index_usage_stats As U
+                         ON I.object_id = U.object_id AND I.index_id = U.index_id
+WHERE 1 = 1
+  AND DB_NAME(database_id) = 'dpRDS'

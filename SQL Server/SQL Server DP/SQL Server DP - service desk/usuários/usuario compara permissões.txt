@@ -1,0 +1,15 @@
+;WITH destino AS (SELECT ANU.UserName, ANUC.ClaimType, ANUC.ClaimValue
+                 FROM AspNetUsers ANU
+                          INNER JOIN AspNetUserClaims ANUC on ANU.Id = ANUC.UserId
+                 WHERE ANU.Email IN ('igor.leite@dataplace.com.br')),
+     origem AS (SELECT ANU.UserName, ANUC.ClaimType, ANUC.ClaimValue
+                FROM AspNetUsers ANU
+                         INNER JOIN AspNetUserClaims ANUC on ANU.Id = ANUC.UserId
+                WHERE ANU.Email IN ('johannes@dataplace.com.br'))
+SELECT *
+FROM destino
+         RIGHT JOIN origem
+                    ON destino.ClaimType = origem.ClaimType
+
+
+WHERE destino.ClaimValue IS NULL

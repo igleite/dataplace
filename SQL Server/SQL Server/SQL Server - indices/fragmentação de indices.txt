@@ -1,0 +1,17 @@
+SELECT "BANCO"          = db_name(a.database_id)
+     , ss.name
+     , "TABELA"         = object_name(a.object_id)
+     , "INDICE"         = si.name
+     , "FRAGMENTACAO"   = avg_fragmentation_in_percent
+     , "TIPO DO INDICE" = index_type_desc
+     , "REBUILD TABELA" = 'ALTER TABLE ' + QUOTENAME(ss.name) + '.' + QUOTENAME(object_name(a.object_id)) + ' REBUILD;'
+     , "REBUILD INDICE" = 'ALTER INDEX ' + QUOTENAME(si.name) + ' on ' + QUOTENAME(ss.name) + '.' + QUOTENAME(object_name(a.object_id)) + ' REBUILD;'
+     , *
+FROM sys.dm_db_index_physical_stats(db_id(), NULL, NULL, NULL, NULL) A
+         JOIN sys.indexes si ON a.object_id = si.object_id
+    AND a.index_id = si.index_id
+         JOIN sys.tables st ON A.object_id = ST.object_id
+         JOIN sys.schemas ss ON ss.schema_id = st.schema_id
+WHERE avg_fragmentation_in_percent >= 0
+  AND SI.NAME IS NOT NULL
+ORDER BY 5 DESC

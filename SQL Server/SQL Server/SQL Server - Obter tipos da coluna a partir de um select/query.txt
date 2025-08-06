@@ -1,0 +1,8 @@
+-- https://stackoverflow.com/questions/1601727/how-do-i-return-the-sql-data-types-from-my-query
+-- verifica o datatype que será retornado em cada coluna da query
+
+DECLARE @query nvarchar(max) = N'
+SELECT CAST(999.00 AS INT) AS [INT], CAST(999 AS DECIMAL(10,9)) AS [DECIMAL], CAST(999 AS MONEY) AS [MONEY]
+'
+
+EXEC sp_describe_first_result_set @query, null, 0;

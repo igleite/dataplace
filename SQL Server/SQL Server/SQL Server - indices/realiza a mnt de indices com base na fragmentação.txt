@@ -1,0 +1,31 @@
+SELECT *
+FROM (
+         SELECT nome_tabela        = OBJECT_NAME(b.object_id),
+                nome_indice        = name,
+                fragmentacao_media = avg_fragmentation_in_percent,
+                script             = CASE
+                                         WHEN avg_fragmentation_in_percent > 30
+                                             THEN
+                                                 'ALTER INDEX ' + name + ' ON ' + object_name(b.object_id) +
+                                                 ' REBUILD'
+
+                                         WHEN avg_fragmentation_in_percent >= 5
+                                             AND
+                                              avg_fragmentation_in_percent <= 30
+                                             THEN 'ALTER INDEX ' + name + ' ON ' + object_name(b.object_id) + ' REORGANIZE'
+                    END
+         FROM sys.dm_db_index_physical_stats
+                  (
+                      DB_ID('dpRDS') -- define o nome do banco de dados que ira ser verificado (required)
+                  , NULL
+                  , NULL
+                  , NULL
+                  , NULL
+                  ) AS a -- (Parametros da funcao: banco de dados, tabela, indice, particao fisica, modo de analise: default, null, limited (limitado), sampled (amostra), detailed (detalhado))
+                  JOIN sys.indexes AS b ON a.object_id = b.object_id AND a.index_id = b.index_id
+
+--          WHERE OBJECT_NAME(b.object_id) = 'ProdutoPreco' -- seleciona a tabela que deseja verificar (caso comentar irá verificar todas as tabelas)
+
+     ) TbAux
+WHERE 1 = 1 
+	AND script IS NOT NULL;

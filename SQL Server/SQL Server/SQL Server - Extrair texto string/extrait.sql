@@ -1,0 +1,1 @@
+SELECT SUBSTRING(@numpedido, PATINDEX('%[0-9]%', @numpedido), PATINDEX('%[0-9][^0-9]%', @numpedido + 't') - PATINDEX('%[0-9]%',  @numpedido) + 1)

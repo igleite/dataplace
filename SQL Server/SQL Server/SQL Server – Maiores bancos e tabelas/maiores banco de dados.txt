@@ -1,0 +1,25 @@
+DROP TABLE IF EXISTS #tmp
+CREATE TABLE #tmp
+(
+
+    [database_name]     VARCHAR(MAX),
+    [database_size]     VARCHAR(MAX),
+    [unallocated space] VARCHAR(MAX),
+    [reserved]          VARCHAR(MAX),
+    [data]              VARCHAR(MAX),
+    [index_size]        VARCHAR(MAX),
+    [unused]            VARCHAR(MAX)
+
+);
+
+
+EXEC sys.sp_MSforeachdb 'USE [?]  IF DB_Name() = ''Treinamento'' INSERT #tmp EXEC sp_spaceused @oneresultset = 1'
+
+
+SELECT *,
+       IIF(CAST(CAST(REPLACE(database_size, ' MB', '') AS FLOAT) / 1024 AS DECIMAL(10, 2)) < 1.00,
+           CONCAT(CAST(REPLACE(database_size, ' MB', '') AS FLOAT), ' MB'),
+           CONCAT(CAST(CAST(REPLACE(database_size, ' MB', '') AS FLOAT) / 1024 AS DECIMAL(10, 2)), ' GB')
+       ) AS database_size_fmt
+FROM #tmp
+ORDER BY TRY_CAST(REPLACE(database_size, ' MB', '') AS FLOAT) DESC

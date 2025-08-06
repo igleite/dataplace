@@ -1,0 +1,91 @@
+USE dpRDS
+GO
+;
+WITH Cabecalho AS (SELECT NumPlanejamento = DOP.NumPlanejamento
+                        , NumOS           = DOP.NumOS
+                        , CdProfissional  = D.cdprofissional
+                        , Nome            = D.nome
+                        , Descricao       = COALESCE(DOP.Titulo, DT.descricao)
+                        , OsVinculadas    = OSVinculadas.NumOSs
+                        , Status          = CASE DOP.Bucket
+                                                WHEN 0 THEN 'ToDo'
+                                                WHEN 1 THEN 'Doing'
+                                                WHEN 2 THEN 'Done'
+                                                WHEN 3 THEN 'To Test'
+                                                WHEN 4 THEN 'Testing'
+                                                WHEN 5 THEN 'Todos'
+        END
+                        , DtPrevisao      = DOP.DtPrevisao
+                        , DtConclusao     = DOP.DtConclusao
+                        , Anotacoes       = DOP.Anotacoes
+                   FROM DpOsPlanejamento DOP
+                            LEFT JOIN DpIndicadorRecursoEstimado IRE
+                                      ON DOP.NumIre = IRE.NumIre
+                                          AND DOP.NumOS = IRE.NumOS
+                            LEFT JOIN dptrabalho DT
+                                      ON IRE.CdAtividade = DT.cdtrabalho
+                                          AND IRE.CdCentroTrabalho = DT.cdccusto
+                            LEFT JOIN DpOSPlanejamentoProfissional DOPP
+                                      ON DOP.NumPlanejamento = DOPP.NumPlanejamento
+                            LEFT JOIN dpprofissional D
+                                      ON DOPP.CdProfissional = D.cdprofissional
+
+                            OUTER APPLY (SELECT NumOSs = STRING_AGG(NumOS, ',')
+                                         FROM DpOsPlanejamentoOSVinculadas
+                                         WHERE 1 = 1
+                                           AND DpOsPlanejamentoOSVinculadas.NumPlanejamento = DOP.NumPlanejamento) OSVinculadas
+
+                   WHERE 1 = 1
+                     AND DOP.NumOS = '236004'),
+     Itens AS (SELECT RowNum          = ROW_NUMBER() OVER (PARTITION BY DOPCLI.NumPlanejamento ORDER BY DOPCLI.ItemDescricao)
+                    , NumPlanejamento = DOP.NumPlanejamento
+                    , NumOS           = DOP.NumOS
+                    , Concluido       = DOPCLI.Concluido
+                    , ItemDescricao   = DOPCLI.ItemDescricao
+               FROM DpOsPlanejamento DOP
+                        LEFT JOIN DpIndicadorRecursoEstimado IRE
+                                  ON DOP.NumIre = IRE.NumIre
+                                      AND DOP.NumOS = IRE.NumOS
+                        LEFT JOIN dptrabalho DT
+                                  ON IRE.CdAtividade = DT.cdtrabalho
+                                      AND IRE.CdCentroTrabalho = DT.cdccusto
+                        LEFT JOIN DpOSPlanejamentoProfissional DOPP
+                                  ON DOP.NumPlanejamento = DOPP.NumPlanejamento
+                        LEFT JOIN dpprofissional D
+                                  ON DOPP.CdProfissional = D.cdprofissional
+                        INNER JOIN DpOsPlanejamentoCheckListItems DOPCLI
+                                   ON DOP.NumPlanejamento = DOPCLI.NumPlanejamento
+
+               WHERE 1 = 1
+                 AND DOP.NumOS = '236004')
+
+SELECT NumPlanejamento = Cabecalho.NumPlanejamento
+     , NumOS           = Cabecalho.NumOS
+     , CdProfissional  = Cabecalho.CdProfissional
+     , Nome            = Cabecalho.Nome
+     , Card            = Cabecalho.Descricao
+     , Descricao       = NULL
+     , VinculoOs       = Cabecalho.OsVinculadas
+     , Status          = Cabecalho.Status
+     , DtPrevisao      = Cabecalho.DtPrevisao
+     , DtConclusao     = Cabecalho.DtConclusao
+     , Anotacoes       = Cabecalho.Anotacoes
+     , RowNum          = 0
+FROM Cabecalho
+
+UNION ALL
+
+SELECT NumPlanejamento = Itens.NumPlanejamento
+     , NumOS           = NULL
+     , CdProfissional  = NULL
+     , Nome            = NULL
+     , Card            = NULL
+     , Descricao       = Itens.ItemDescricao
+     , VinculoOs       = NULL
+     , Status          = NULL
+     , DtPrevisao      = NULL
+     , DtConclusao     = NULL
+     , Anotacoes       = NULL
+     , RowNum          = Itens.RowNum
+FROM Itens
+ORDER BY NumPlanejamento, RowNum, Nome;

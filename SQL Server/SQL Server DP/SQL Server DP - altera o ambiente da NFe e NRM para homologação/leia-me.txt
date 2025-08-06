@@ -1,0 +1,4 @@
+utilizar em conjunto com a alteração do CNPJ.
+para não emitir notas no CNPJ do cliente.
+
+SQL Server DP - altera CNPJ para dataplace

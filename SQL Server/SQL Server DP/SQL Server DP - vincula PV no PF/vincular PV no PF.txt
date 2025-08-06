@@ -1,0 +1,66 @@
+/*
+
+ * VINCULA PEDIDO DE VENDA AO PEDIDO DE FATURAMENTO
+
+
+ * @numPF = número do pedido de faturamento
+ * @nummovimento = número do pedido de venda
+ * @cdproduto = código do produto
+
+ */
+
+SELECT pendenciavendaitem.nummovimento          AS 'NumeroPV'
+     , pendenciavendaitem.seq                   AS 'SeqPV'
+     , pendenciavenda1.stpendencia              AS 'Status'
+     , pendenciavendaitem.cdproduto             AS 'CdProd'
+     , PedidoItem.numpedido                     AS 'NumPF' -- retorna o @numPF vinculado ao @cdproduto do @nummovimento, caso esteja null não existe vinculo, necessário fazer
+     , pendenciavendaitem.qtdprocessada         AS 'qtdprocessada'
+     , pendenciavendaitem.disponivelparacarga   AS 'disponivelparacarga'
+     , pendenciavendaitem.qtdprocessada         AS 'qtdprocessada'
+     , pendenciavendaitem.QtdProcessadaCobranca AS 'QtdProcessadaCobranca'
+     
+     , ' '                                      AS ' '
+     , '0'                                      AS 'disponivelparacargaCorreta'
+     , pendenciavendaitem.qtdsolicitada         AS 'qtdprocessadaCorreta'
+     , pendenciavendaitem.qtdsolicitada         AS 'QtdProcessadaCobrancaCorreta'
+FROM pendenciavendaitem
+         INNER JOIN pendenciavenda1 ON pendenciavendaitem.nummovimento = pendenciavenda1.nummovimento
+         LEFT JOIN PedidoItem ON pendenciavendaitem.seq = PedidoItem.nummovimento
+WHERE pendenciavendaitem.nummovimento = '@nummovimento'
+
+
+
+
+
+BEGIN TRAN
+
+
+
+UPDATE pendenciavenda1
+SET stpendencia = 'E',
+    VlVendaFNC  = 0,
+    vlvendar    = 0
+WHERE nummovimento = '@nummovimento';
+
+
+UPDATE PedidoItem
+SET nummovimento = (SELECT pendenciavendaitem.seq
+                    FROM pendenciavendaitem
+                    WHERE pendenciavendaitem.nummovimento = '@nummovimento'
+                      AND pendenciavendaitem.cdproduto = '@cdproduto')
+WHERE numpedido = '@numPF'
+  AND cdproduto = '@cdproduto'
+
+
+UPDATE pendenciavendaitem
+SET qtdprocessada         = qtdsolicitada,
+    disponivelparacarga   = 0,
+    QtdProcessadaCobranca = qtdsolicitada
+WHERE nummovimento = '@nummovimento'
+  AND cdproduto = '@cdproduto'
+
+
+
+
+-- COMMIT TRAN
+-- ROLLBACK TRAN

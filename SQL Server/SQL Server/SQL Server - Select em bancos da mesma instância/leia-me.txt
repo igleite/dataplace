@@ -1,0 +1,6 @@
+Realiza SELECT em dois bancos, da mesma instância.
+Possibilidade de JOIN entre tabelas.
+
+No exemplo, também força um collate nas tabelas, caso as mesma estejam com collate diferente, impedindo a mensagem abaixo.
+
+>> Cannot resolve the collation conflict between "Latin1_General_CI_AS" and "SQL_Latin1_General_CP1_CI_AS" in the equal to operation.

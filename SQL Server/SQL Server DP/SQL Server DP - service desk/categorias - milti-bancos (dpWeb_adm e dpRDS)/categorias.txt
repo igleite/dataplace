@@ -1,0 +1,38 @@
+SELECT pvt.Id
+     , pvt.Name
+     , pvt.categoria
+     , pvt.[prof.direcionamento]
+     , doc.cdcategoria
+     , doc.cdsubcategoria
+     , doc.cditem
+     , doc.Seq
+FROM (SELECT TicketCategories.Name
+		   , TicketCategories.Id
+           , tbAuxJson.chave
+           , tbAuxJson.valor
+      FROM TicketCategories
+               CROSS APPLY OPENJSON(dbo.TicketCategories.Data)
+                                    WITH (
+                                        chave NVARCHAR(MAX) '$.Key',
+                                        valor NVARCHAR(MAX) '$.Value'
+                                        ) AS tbAuxJson
+
+
+      WHERE 1 = 1
+		AND Active = CAST(1 AS bit)
+		) TbAux
+         PIVOT (
+         MAX(valor)
+         FOR chave IN ([categoria], [prof.direcionamento])
+         ) AS pvt
+
+         LEFT JOIN [STRAUSS\MSSQLPD].dpRDS.dbo.DpOSCategorizacao doc ON pvt.categoria = DOC.Seq
+
+WHERE 1 = 1
+	AND DOC.Seq IS NULL
+	--AND pvt.name = 'ERP-VENDAS >> SAT'
+
+
+
+
+

@@ -1,0 +1,39 @@
+SELECT DOP.NumOS
+     , BucketDesc = CASE DOP.Bucket
+                        WHEN 0 THEN 'ToDo'
+                        WHEN 1 THEN 'Doing'
+                        WHEN 2 THEN 'Done'
+                        WHEN 3 THEN 'ToTest'
+                        WHEN 4 THEN 'Testing'
+                        WHEN 5 THEN 'Todos'
+    END
+     , DOP.NumPlanejamento
+     , DOP.NumIre
+     , D.cdprofissional
+     , DOP.NumIre
+     , IRE.NumIre
+     , IRE.CdCentroTrabalho
+     , IRE.HorasEstimadas
+
+FROM DpOsPlanejamento DOP
+
+         LEFT JOIN DpIndicadorRecursoEstimado IRE
+                   ON DOP.NumIre = IRE.NumIre
+                       AND DOP.NumOS = IRE.NumOS
+
+         LEFT JOIN dptrabalho DT
+                   ON IRE.CdAtividade = DT.cdtrabalho
+                       AND IRE.CdCentroTrabalho = DT.cdccusto
+
+         LEFT JOIN DpOSPlanejamentoProfissional DOPP
+                   ON DOP.NumPlanejamento = DOPP.NumPlanejamento
+
+         LEFT JOIN dpprofissional D
+                   ON DOPP.CdProfissional = D.cdprofissional
+
+WHERE 1 = 1
+  AND D.stativo = 'S'
+  AND DOPP.CdProfissional = 'ALN'
+  AND CONVERT(DATE, DOP.DtPrevisao) < CONVERT(DATE, GETDATE())
+  AND DOP.Bucket <> 2
+ORDER BY DOP.Bucket

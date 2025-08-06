@@ -1,0 +1,7 @@
+https://www.tiagoneves.net/blog/encontrando-indices-nao-utilizados/
+
+https://dirceuresende.com/blog/sql-server-como-identificar-todos-os-indices-ausentes-missing-indexes-de-um-banco-de-dados/
+
+https://dirceuresende.com/blog/series/performance-tuning/
+
+https://www.linkedin.com/pulse/consultas-lentas-ap%C3%B3s-migrar-para-o-sql-server-te-causas-gon%C3%A7alves/

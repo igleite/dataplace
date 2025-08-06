@@ -1,0 +1,3 @@
+EXEC sp_msforeachdb '
+IF (DB_ID(''?'') > 4)
+EXEC (''ALTER DATABASE [?] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;'')'

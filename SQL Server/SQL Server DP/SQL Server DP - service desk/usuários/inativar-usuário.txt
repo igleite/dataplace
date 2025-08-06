@@ -1,0 +1,4 @@
+UPDATE AspNetUsers
+SET IsActive = 0, LockoutEnd = GETDATE() + 99999, LockoutEnabled = 1
+FROM AspNetUsers ANU
+WHERE ANU.Email = 'raphaela.honorato@emporiodaseguranca.com.br'

@@ -1,0 +1,61 @@
+IF (OBJECT_ID('tempdb..#tamanho_tabelas') IS NOT NULL) DROP TABLE #tamanho_tabelas
+CREATE TABLE #tamanho_tabelas (
+    [database]   NVARCHAR(256),
+    [schema]     NVARCHAR(256),
+    [table_name] NVARCHAR(256),
+    [row_count]  BIGINT,
+    [size_mb]    DECIMAL(36, 2),
+    [used_mb]    DECIMAL(36, 2),
+    [unused_mb]  DECIMAL(36, 2)
+)
+
+INSERT INTO #tamanho_tabelas
+EXEC sys.[sp_MSforeachdb] '
+IF (''?'' NOT IN (''model'', ''master'', ''tempdb'', ''msdb''))
+BEGIN
+
+    SELECT
+        ''?'' AS [database],
+        s.[name] AS [schema],
+        t.[name] AS [table_name],
+        p.[rows] AS [row_count],
+        CAST(ROUND(((SUM(a.total_pages) * 8) / 1024.00), 2) AS NUMERIC(36, 2)) AS [size_mb],
+        CAST(ROUND(((SUM(a.used_pages) * 8) / 1024.00), 2) AS NUMERIC(36, 2)) AS [used_mb], 
+        CAST(ROUND(((SUM(a.total_pages) - SUM(a.used_pages)) * 8) / 1024.00, 2) AS NUMERIC(36, 2)) AS [unused_mb]
+    FROM 
+        [?].sys.tables t
+        JOIN [?].sys.indexes i ON t.[object_id] = i.[object_id]
+        JOIN [?].sys.partitions p ON i.[object_id] = p.[object_id] AND i.index_id = p.index_id
+        JOIN [?].sys.allocation_units a ON p.[partition_id] = a.container_id
+        LEFT JOIN [?].sys.schemas s ON t.[schema_id] = s.[schema_id]
+    WHERE 
+        t.is_ms_shipped = 0
+        AND i.[object_id] > 255 
+	--AND t.[name] = ''LogEvento''
+    GROUP BY
+        t.[name], 
+        s.[name], 
+        p.[rows]
+        
+END'
+
+SELECT *,
+       -- Formata size_mb
+       IIF(size_mb / 1024 < 1,
+           CONCAT(CAST(size_mb AS DECIMAL(10, 2)), ' MB'),
+           CONCAT(CAST(size_mb / 1024 AS DECIMAL(10, 2)), ' GB')
+       ) AS size_fmt,
+
+       -- Formata used_mb
+       IIF(used_mb / 1024 < 1,
+           CONCAT(CAST(used_mb AS DECIMAL(10, 2)), ' MB'),
+           CONCAT(CAST(used_mb / 1024 AS DECIMAL(10, 2)), ' GB')
+       ) AS used_fmt,
+
+       -- Formata unused_mb
+       IIF(unused_mb / 1024 < 1,
+           CONCAT(CAST(unused_mb AS DECIMAL(10, 2)), ' MB'),
+           CONCAT(CAST(unused_mb / 1024 AS DECIMAL(10, 2)), ' GB')
+       ) AS unused_fmt
+FROM [#tamanho_tabelas]
+ORDER BY size_mb DESC

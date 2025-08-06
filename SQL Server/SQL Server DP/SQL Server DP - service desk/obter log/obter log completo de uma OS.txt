@@ -1,0 +1,25 @@
+SELECT [StoredEvent].[Id]
+     , NumOS = JSON_VALUE([StoredEvent].[Data], '$.NumOS')
+     , [StoredEvent].[Action]
+     , [StoredEvent].[Data]
+     , [StoredEvent].[User]
+     , [AspNetUsers].[Email]
+     , Tipo  = CASE
+                   WHEN [StoredEvent].[Action] = 'OrdemServicoInsertedEvent' THEN 'OS criada'
+                   WHEN [StoredEvent].[Action] = 'OrdemServicoProfissionalAdicionadoEvent' THEN 'Profissional Adicionado'
+                   WHEN [StoredEvent].[Action] = 'OrdemServicoProfissionalAtualizadoEvent' THEN 'Profissional Atualizado'
+				   WHEN [StoredEvent].[Action] = 'OrdemServicoProfissionalRemovidoEvent' THEN 'Profissional Apagado'
+				   ELSE [StoredEvent].[Action]
+    END
+    -- , Acao  = CASE
+    --               WHEN [StoredEvent].[Id] IN ('84A35368-F1BA-40E2-A40F-E7592F880AF2', '21AC4934-C1E5-4A7F-9062-92389D8F5C01') THEN 'Criação'
+				--   WHEN [StoredEvent].[Id] IN ('7409DCBD-91B5-482D-A1BD-7C3ED5DC1185') THEN 'Adicionei o Washington'
+				--   WHEN [StoredEvent].[Id] IN ('1696C293-37D7-4733-B011-CE275C5AAB99') THEN 'Deixei Washington como responsável'
+				--   WHEN [StoredEvent].[Id] IN ('703ECA3D-A99D-412A-B55C-AAE73AF2733E') THEN 'Deixei Igor como responsável'
+				--   WHEN [StoredEvent].[Id] IN ('4629BD40-C4EA-4504-8115-03FEA1E8FE6E') THEN 'Apaguei Washington da OS'
+    --END
+FROM [StoredEvent]
+         INNER JOIN [AspNetUsers] ON [StoredEvent].[User] = [AspNetUsers].[Id]
+WHERE 1 = 1
+  AND JSON_VALUE([StoredEvent].[Data], '$.NumOS') = 251903
+ORDER BY [StoredEvent].[CreationDate] DESC
