@@ -6,3 +6,16 @@ SELECT CAST(999.00 AS INT) AS [INT], CAST(999 AS DECIMAL(10,9)) AS [DECIMAL], CA
 '
 
 EXEC sp_describe_first_result_set @query, null, 0;
+
+
+-- Opção 2
+
+SELECT *
+FROM sys.dm_exec_describe_first_result_set
+ (
+N'
+SELECT CAST(999.00 AS INT) AS [INT], CAST(999 AS DECIMAL(10,9)) AS [DECIMAL], CAST(999 AS MONEY) AS [MONEY]
+',
+NULL,
+0
+ );
