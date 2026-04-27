@@ -6,17 +6,17 @@ FROM (
                 script             = CASE
                                          WHEN avg_fragmentation_in_percent > 30
                                              THEN
-                                                 'ALTER INDEX ' + name + ' ON ' + object_name(b.object_id) +
+                                                 'ALTER INDEX ' + QUOTENAME(name) + ' ON ' + QUOTENAME(object_name(b.object_id)) +
                                                  ' REBUILD'
 
                                          WHEN avg_fragmentation_in_percent >= 5
                                              AND
                                               avg_fragmentation_in_percent <= 30
-                                             THEN 'ALTER INDEX ' + name + ' ON ' + object_name(b.object_id) + ' REORGANIZE'
+                                             THEN 'ALTER INDEX ' + QUOTENAME(name) + ' ON ' + QUOTENAME(object_name(b.object_id))  + ' REORGANIZE'
                     END
          FROM sys.dm_db_index_physical_stats
                   (
-                      DB_ID('dpRDS') -- define o nome do banco de dados que ira ser verificado (required)
+                      DB_ID() -- define o nome do banco de dados que ira ser verificado (required)
                   , NULL
                   , NULL
                   , NULL
